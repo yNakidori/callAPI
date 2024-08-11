@@ -1,43 +1,64 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
+import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-
 import { auth } from "../services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import Bg from "../assets/images/background.jpg";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Lottie from "react-lottie";
+import animationData from "../assets/lottie/Aniki Hamster.json";
+import Footer from "../components/footer";
+import "../styles/logIn.css";
 
 export default function SignIn() {
+  const navigate = useNavigate();
+  const [videoUrl, setVideoUrl] = useState("");
+
+  const apiKey = process.env.REACT_APP_PEXELS_API_KEY;
+
+  // Fetch video from Pexels API
+  useEffect(() => {
+    const fetchVideo = async () => {
+      try {
+        const response = await axios.get(
+          "https://api.pexels.com/videos/search?query=technology&per_page=50",
+          {
+            headers: {
+              Authorization: apiKey,
+            },
+          }
+        );
+        const videos = response.data.videos;
+        if (videos.length > 0) {
+          const randomVideo = videos[Math.floor(Math.random() * videos.length)];
+          setVideoUrl(randomVideo.video_files[0].link);
+          console.log("Vídeo carregado:", randomVideo.video_files[0].link);
+        } else {
+          console.log("Nenhum vídeo encontrado.");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar vídeo do Pexels:", error);
+      }
+    };
+
+    fetchVideo();
+  }, [apiKey]);
+
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -46,37 +67,60 @@ export default function SignIn() {
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed up
         const user = userCredential.user;
-        // ...
+        navigate("/homePage");
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        // ..
+        console.error("Error creating account:", errorCode, errorMessage);
       });
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <div>
       <Grid container component="main" sx={{ height: "100vh" }}>
-        <CssBaseline />
         <Grid
           item
           xs={false}
           sm={4}
           md={7}
           sx={{
-            backgroundImage: `url(${Bg})`,
-            backgroundColor: (t) =>
-              t.palette.mode === "light"
-                ? t.palette.grey[50]
-                : t.palette.grey[900],
-            backgroundSize: "cover",
-            backgroundPosition: "left",
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        >
+          {videoUrl && (
+            <video
+              autoPlay
+              loop
+              muted
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                position: "absolute",
+                top: 0,
+                left: 0,
+              }}
+            >
+              <source src={videoUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          )}
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          sm={8}
+          md={5}
+          component={Paper}
+          elevation={6}
+          square
+          sx={{ backgroundColor: "#e1e8ed" }}
+        >
           <Box
             sx={{
               my: 8,
@@ -86,9 +130,7 @@ export default function SignIn() {
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
-            </Avatar>
+            <Lottie options={defaultOptions} height={100} width={100} />
             <Typography component="h1" variant="h5">
               Create account
             </Typography>
@@ -143,11 +185,11 @@ export default function SignIn() {
                   </Link>
                 </Grid>
               </Grid>
-              <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
         </Grid>
       </Grid>
-    </ThemeProvider>
+      <Footer />
+    </div>
   );
 }

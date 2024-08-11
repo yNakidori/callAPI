@@ -1,8 +1,6 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
@@ -10,38 +8,21 @@ import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { auth } from "../services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Lottie from "react-lottie";
+import animationData from "../assets/lottie/Aniki Hamster.json";
+import Footer from "../components/footer";
 import "../styles/logIn.css";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-const defaultTheme = createTheme();
 
 export default function LogIn() {
   const navigate = useNavigate();
   const [videoUrl, setVideoUrl] = useState("");
+
+  const apiKey = process.env.REACT_APP_PEXELS_API_KEY;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -65,6 +46,7 @@ export default function LogIn() {
     }
   };
 
+  // Fetch video from Pexels API
   useEffect(() => {
     const fetchVideo = async () => {
       try {
@@ -72,8 +54,7 @@ export default function LogIn() {
           "https://api.pexels.com/videos/search?query=technology&per_page=50",
           {
             headers: {
-              Authorization:
-                "ZhQzWiPCEQ7WZBr8VoPrwy6QRdNP7pvuRXydUyZd4w5kRBC6MnkVmb8f",
+              Authorization: apiKey,
             },
           }
         );
@@ -91,12 +72,20 @@ export default function LogIn() {
     };
 
     fetchVideo();
-  }, []);
+  }, [apiKey]);
+
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <div>
       <Grid container component="main" sx={{ height: "100vh" }}>
-        <CssBaseline />
         <Grid
           item
           xs={false}
@@ -107,10 +96,6 @@ export default function LogIn() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: (t) =>
-              t.palette.mode === "light"
-                ? t.palette.grey[50]
-                : t.palette.grey[900],
           }}
         >
           {videoUrl && (
@@ -132,7 +117,16 @@ export default function LogIn() {
             </video>
           )}
         </Grid>
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        <Grid
+          item
+          xs={12}
+          sm={8}
+          md={5}
+          component={Paper}
+          elevation={6}
+          square
+          sx={{ backgroundColor: "#e1e8ed" }}
+        >
           <Box
             sx={{
               my: 8,
@@ -140,12 +134,9 @@ export default function LogIn() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              backgroundColor: "#8899A6",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
-            </Avatar>
+            <Lottie options={defaultOptions} height={100} width={100} />
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
@@ -199,11 +190,11 @@ export default function LogIn() {
                   </Link>
                 </Grid>
               </Grid>
-              <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
         </Grid>
       </Grid>
-    </ThemeProvider>
+      <Footer />
+    </div>
   );
 }

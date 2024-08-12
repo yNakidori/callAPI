@@ -119,7 +119,7 @@ export default function SignIn() {
           component={Paper}
           elevation={6}
           square
-          sx={{ backgroundColor: "#e1e8ed" }}
+          sx={{ backgroundColor: " #908d96 " }}
         >
           <Box
             sx={{
@@ -149,6 +149,28 @@ export default function SignIn() {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#46448C", // Cor da borda
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#46448C", // Cor da borda ao passar o mouse
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#46448C", // Cor da borda quando o campo está focado
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#46448C", // Cor do label
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#46448C", // Cor do label quando o campo está focado
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    color: "#FFFFFF", // Cor do texto
+                  },
+                }}
               />
               <TextField
                 margin="normal"
@@ -159,6 +181,28 @@ export default function SignIn() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#46448C", // Cor da borda
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#46448C", // Cor da borda ao passar o mouse
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#46448C", // Cor da borda quando o campo está focado
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#46448C", // Cor do label
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#46448C", // Cor do label quando o campo está focado
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    color: "#FFFFFF", // Cor do texto
+                  },
+                }}
               />
               <TextField
                 margin="normal"
@@ -168,19 +212,49 @@ export default function SignIn() {
                 type="password"
                 label="Confirm your password again"
                 id="passwordValidation"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#46448C", // Cor da borda
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#46448C", // Cor da borda ao passar o mouse
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#46448C", // Cor da borda quando o campo está focado
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#46448C", // Cor do label
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#46448C", // Cor do label quando o campo está focado
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    color: "#FFFFFF", // Cor do texto
+                  },
+                }}
               />
               <Button
                 color="success"
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  borderRadius: 8,
+                  backgroundColor: "#5855AE",
+                  "&:hover": {
+                    backgroundColor: "#46448C",
+                  },
+                }}
               >
                 Create
               </Button>
               <Grid container>
                 <Grid item>
-                  <Link href="/" variant="body2">
+                  <Link href="/" variant="body2" sx={{ color: "#382bf0" }}>
                     {"Already have an account? Sign Up"}
                   </Link>
                 </Grid>

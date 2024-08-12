@@ -9,6 +9,7 @@ import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
+import { pink } from "@mui/material/colors";
 import { auth } from "../services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -84,7 +85,7 @@ export default function LogIn() {
   };
 
   return (
-    <div>
+    <div className="main">
       <Grid container component="main" sx={{ height: "100vh" }}>
         <Grid
           item
@@ -96,6 +97,7 @@ export default function LogIn() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            height: "100%",
           }}
         >
           {videoUrl && (
@@ -125,7 +127,7 @@ export default function LogIn() {
           component={Paper}
           elevation={6}
           square
-          sx={{ backgroundColor: "#e1e8ed" }}
+          sx={{ backgroundColor: " #908d96 " }}
         >
           <Box
             sx={{
@@ -155,6 +157,29 @@ export default function LogIn() {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                variant="outlined"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#46448C", // Cor da borda
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#46448C", // Cor da borda ao passar o mouse
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#46448C", // Cor da borda quando o campo está focado
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#46448C", // Cor do label
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#46448C", // Cor do label quando o campo está focado
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    color: "#FFFFFF", // Cor do texto
+                  },
+                }}
               />
               <TextField
                 margin="normal"
@@ -165,27 +190,72 @@ export default function LogIn() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                variant="outlined"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#46448C", // Cor da borda
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#46448C", // Cor da borda ao passar o mouse
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#46448C", // Cor da borda quando o campo está focado
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "#46448C", // Cor do label
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: "#46448C", // Cor do label quando o campo está focado
+                  },
+                  "& .MuiOutlinedInput-input": {
+                    color: "#FFFFFF", // Cor do texto
+                  },
+                }}
               />
               <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
+                control={
+                  <Checkbox
+                    value="remember"
+                    sx={{
+                      color: pink[600],
+                      "&.Mui-checked": {
+                        color: pink[600], // Preenchimento ao ser marcado
+                      },
+                    }}
+                  />
+                }
                 label="Remember me"
               />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  borderRadius: 8,
+                  backgroundColor: "#5855AE",
+                  "&:hover": {
+                    backgroundColor: "#46448C",
+                  },
+                }}
               >
                 Sign In
               </Button>
               <Grid container>
                 <Grid item xs>
-                  <Link href="forgotPassword" variant="body2">
+                  <Link
+                    href="forgotPassword"
+                    variant="body2"
+                    sx={{ color: "#382bf0" }}
+                  >
                     Forgot password?
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link href="SignIn" variant="body2">
+                  <Link href="SignIn" variant="body2" sx={{ color: "#382bf0" }}>
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>

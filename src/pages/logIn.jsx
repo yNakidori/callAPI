@@ -55,7 +55,8 @@ export default function LogIn() {
           "https://api.pexels.com/videos/search?query=technology&per_page=50",
           {
             headers: {
-              Authorization: apiKey,
+              Authorization:
+                "ZhQzWiPCEQ7WZBr8VoPrwy6QRdNP7pvuRXydUyZd4w5kRBC6MnkVmb8f",
             },
           }
         );

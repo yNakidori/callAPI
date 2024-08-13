@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -16,11 +16,13 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import Lottie from "react-lottie";
 import animationData from "../assets/lottie/TicketAnimation.json";
+import { Navigate, useNavigate } from "react-router-dom";
 
+// Styled components
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  backgroundColor: "BBE9FF",
   "&:hover": {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
@@ -47,7 +49,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     width: "100%",
@@ -57,80 +58,58 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function NavBar() {
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
-    },
-  };
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+const NavBar = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
+  const handleProfileMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMobileMenuClose = () => setMobileMoreAnchorEl(null);
   const handleMenuClose = () => {
     setAnchorEl(null);
     handleMobileMenuClose();
   };
-
-  const handleMobileMenuOpen = (event) => {
+  const handleMobileMenuOpen = (event) =>
     setMobileMoreAnchorEl(event.currentTarget);
-  };
 
   const menuId = "primary-search-account-menu";
+  const mobileMenuId = "primary-search-account-menu-mobile";
+
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate("/profilePage");
+  };
+
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
       id={menuId}
       keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
     </Menu>
   );
 
-  const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
       id={mobileMenuId}
       keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+        <IconButton size="large" aria-label="show new mails" color="inherit">
           <Badge badgeContent={4} color="error">
             <MailIcon />
           </Badge>
@@ -140,7 +119,7 @@ export default function NavBar() {
       <MenuItem>
         <IconButton
           size="large"
-          aria-label="show 17 new notifications"
+          aria-label="show new notifications"
           color="inherit"
         >
           <Badge badgeContent={17} color="error">
@@ -153,7 +132,7 @@ export default function NavBar() {
         <IconButton
           size="large"
           aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
+          aria-controls={menuId}
           aria-haspopup="true"
           color="inherit"
         >
@@ -166,18 +145,18 @@ export default function NavBar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ background: "#667BC6" }}>
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Lottie options={defaultOptions} height={100} width={100} />
+          <Lottie
+            options={{
+              loop: true,
+              autoplay: true,
+              animationData,
+              rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+            }}
+            height={100}
+            width={100}
+          />
           <Search>
             <SearchIconWrapper>
               <SearchIcon />
@@ -191,7 +170,7 @@ export default function NavBar() {
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <IconButton
               size="large"
-              aria-label="show 4 new mails"
+              aria-label="show new mails"
               color="inherit"
             >
               <Badge badgeContent={4} color="error">
@@ -200,7 +179,7 @@ export default function NavBar() {
             </IconButton>
             <IconButton
               size="large"
-              aria-label="show 17 new notifications"
+              aria-label="show new notifications"
               color="inherit"
             >
               <Badge badgeContent={17} color="error">
@@ -237,4 +216,6 @@ export default function NavBar() {
       {renderMenu}
     </Box>
   );
-}
+};
+
+export default NavBar;

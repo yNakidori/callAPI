@@ -6,7 +6,7 @@ const HomePage = () => {
     <div>
       <NavBar />
       <div className="main">
-        <h1 className="test">Teste</h1>
+        
       </div>
     </div>
   );

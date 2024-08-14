@@ -1,147 +1,140 @@
-import React, { useEffect, useRef } from "react";
-import { Button, Card, Container, Row, Col } from "reactstrap";
-//import DemoNavbar from "components/Navbars/DemoNavbar";
-//import SimpleFooter from "components/Footers/SimpleFooter";
-import profileImage from "../assets/images/pfp-placeholder.png"; // Use import para imagem
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Avatar,
+  Typography,
+  Button,
+  Grid,
+  IconButton,
+} from "@mui/material";
+import { LocationOn, LinkedIn, GitHub, Twitter } from "@mui/icons-material";
+import { auth, db, storage } from "../services/firebase";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import AppBar from "../components/appBar";
 
-const ProfilePage = () => {
-  const mainRef = useRef(null);
+function ProfilePage() {
+  const [userData, setUserData] = useState({});
+  const [profileImage, setProfileImage] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    document.documentElement.scrollTop = 0;
-    document.scrollingElement.scrollTop = 0;
-    if (mainRef.current) {
-      mainRef.current.scrollTop = 0;
-    }
+    const fetchUserData = async () => {
+      if (auth.currentUser) {
+        const docRef = doc(db, "users", auth.currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        } else {
+          console.log("No such document!");
+        }
+      }
+    };
+    fetchUserData();
   }, []);
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      if (profileImage) {
+        const storageRef = ref(storage, `profiles/${auth.currentUser.uid}`);
+        const uploadTask = uploadBytesResumable(storageRef, profileImage);
+        await uploadTask;
+        const downloadURL = await getDownloadURL(storageRef);
+        await saveUserProfile(downloadURL);
+      } else {
+        await saveUserProfile();
+      }
+    } catch (error) {
+      console.log("Error updating profile: ", error);
+    }
+  };
+
+  const saveUserProfile = async (imageUrl) => {
+    try {
+      await setDoc(doc(db, "users", auth.currentUser.uid), {
+        ...userData,
+        profileImageUrl: imageUrl || userData.profileImageUrl,
+      });
+      alert("Profile updated successfully!");
+      setIsEditing(false);
+    } catch (error) {
+      console.log("Error updating profile:", error);
+    }
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
   return (
-    <>
-      <main className="profile-page" ref={mainRef}>
-        <section className="section-profile-cover section-shaped my-0">
-          {/* Circles background */}
-          <div className="shape shape-style-1 shape-default alpha-4">
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-          </div>
-          {/* SVG separator */}
-          <div className="separator separator-bottom separator-skew">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-              version="1.1"
-              viewBox="0 0 2560 100"
-              x="0"
-              y="0"
-            >
-              <polygon className="fill-white" points="2560 0 2560 100 0 100" />
-            </svg>
-          </div>
-        </section>
-        <section className="section">
-          <Container>
-            <Card className="card-profile shadow mt--300">
-              <div className="px-4">
-                <Row className="justify-content-center">
-                  <Col className="order-lg-2" lg="3">
-                    <div className="card-profile-image">
-                      <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                        <img
-                          alt="Profile"
-                          className="rounded-circle"
-                          src={profileImage} // Usar importado para a imagem
-                        />
-                      </a>
-                    </div>
-                  </Col>
-                  <Col
-                    className="order-lg-3 text-lg-right align-self-lg-center"
-                    lg="4"
-                  >
-                    <div className="card-profile-actions py-4 mt-lg-0">
-                      <Button
-                        className="mr-4"
-                        color="info"
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                        size="sm"
-                      >
-                        Connect
-                      </Button>
-                      <Button
-                        className="float-right"
-                        color="default"
-                        href="#pablo"
-                        onClick={(e) => e.preventDefault()}
-                        size="sm"
-                      >
-                        Message
-                      </Button>
-                    </div>
-                  </Col>
-                  <Col className="order-lg-1" lg="4">
-                    <div className="card-profile-stats d-flex justify-content-center">
-                      <div>
-                        <span className="heading">22</span>
-                        <span className="description">Friends</span>
-                      </div>
-                      <div>
-                        <span className="heading">10</span>
-                        <span className="description">Photos</span>
-                      </div>
-                      <div>
-                        <span className="heading">89</span>
-                        <span className="description">Comments</span>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-                <div className="text-center mt-5">
-                  <h3>
-                    Jessica Jones{" "}
-                    <span className="font-weight-light">, 27</span>
-                  </h3>
-                  <div className="h6 font-weight-300">
-                    <i className="ni location_pin mr-2" />
-                    Bucharest, Romania
-                  </div>
-                  <div className="h6 mt-4">
-                    <i className="ni business_briefcase-24 mr-2" />
-                    Solution Manager - Creative Tim Officer
-                  </div>
-                  <div>
-                    <i className="ni education_hat mr-2" />
-                    University of Computer Science
-                  </div>
-                </div>
-                <div className="mt-5 py-5 border-top text-center">
-                  <Row className="justify-content-center">
-                    <Col lg="9">
-                      <p>
-                        An artist of considerable range, Ryan — the name taken
-                        by Melbourne-raised, Brooklyn-based Nick Murphy —
-                        writes, performs and records all of his own music,
-                        giving it a warm, intimate feel with a solid groove
-                        structure. An artist of considerable range.
-                      </p>
-                      <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                        Show more
-                      </a>
-                    </Col>
-                  </Row>
-                </div>
-              </div>
-            </Card>
-          </Container>
-        </section>
-      </main>
-    </>
+    <div>
+      <AppBar />
+      <div className="main">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "2rem",
+            backgroundColor: "#FFE9D0",
+            minHeight: "100vh",
+          }}
+        >
+          <Avatar
+            alt="User Photo"
+            src={profileImageUrl || "https://via.placeholder.com/150"}
+            sx={{ width: 150, height: 150, marginBottom: "1rem" }}
+          />
+          <Typography variant="h4" component="h1" gutterBottom>
+            {userData.name || "Nome do usuario"}
+          </Typography>
+          <Typography variant="body1" align="center" paragraph>
+            {userData.bio ||
+              "Esta é uma breve biografia do usuário. Pode incluir informações como profissão, hobbies ou qualquer outra coisa que queira compartilhar."}
+          </Typography>
+          <Grid
+            container
+            spacing={2}
+            justifyContent="center"
+            sx={{ marginBottom: "1rem" }}
+          >
+            <Grid item>
+              <IconButton color="primary" href="#" target="_blank">
+                <LinkedIn />
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <IconButton color="primary" href="#" target="_blank">
+                <GitHub />
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <IconButton color="primary" href="#" target="_blank">
+                <Twitter />
+              </IconButton>
+            </Grid>
+          </Grid>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <LocationOn sx={{ marginRight: "0.5rem" }} />
+            <Typography variant="body2">
+              Localização: {userData.location || "Cidade, País"}
+            </Typography>
+          </Box>
+          <Button onClick={handleEditClick} variant="contained" color="primary">
+            Editar Perfil
+          </Button>
+        </Box>
+      </div>
+    </div>
   );
-};
+}
 
 export default ProfilePage;

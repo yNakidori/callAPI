@@ -6,18 +6,36 @@ import {
   Button,
   Grid,
   IconButton,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Paper,
 } from "@mui/material";
 import { LocationOn, LinkedIn, GitHub, Twitter } from "@mui/icons-material";
 import { auth, db, storage } from "../services/firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import AppBar from "../components/appBar";
+import { styled } from "@mui/material/styles";
+
+const ProfileCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  maxWidth: 400,
+  textAlign: "center",
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: theme.shadows[4],
+  background: "rgba(255, 255, 255, 0.9)",
+  margin: "0 auto",
+}));
 
 function ProfilePage() {
   const [userData, setUserData] = useState({});
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -37,15 +55,14 @@ function ProfilePage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      let imageUrl = profileImageUrl;
       if (profileImage) {
         const storageRef = ref(storage, `profiles/${auth.currentUser.uid}`);
         const uploadTask = uploadBytesResumable(storageRef, profileImage);
         await uploadTask;
-        const downloadURL = await getDownloadURL(storageRef);
-        await saveUserProfile(downloadURL);
-      } else {
-        await saveUserProfile();
+        imageUrl = await getDownloadURL(storageRef);
       }
+      await saveUserProfile(imageUrl);
     } catch (error) {
       console.log("Error updating profile: ", error);
     }
@@ -66,6 +83,10 @@ function ProfilePage() {
 
   const handleEditClick = () => {
     setIsEditing(true);
+  };
+
+  const handleClose = () => {
+    setIsEditing(false);
   };
 
   return (
@@ -128,11 +149,71 @@ function ProfilePage() {
               Localização: {userData.location || "Cidade, País"}
             </Typography>
           </Box>
-          <Button onClick={handleEditClick} variant="contained" color="primary">
-            Editar Perfil
-          </Button>
+          <div>
+            <Button
+              onClick={handleEditClick}
+              variant="contained"
+              color="primary"
+            >
+              Edit profile
+            </Button>
+          </div>
         </Box>
       </div>
+
+      <Dialog open={isEditing} onClose={handleClose}>
+        <DialogTitle>Editar Perfil</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Nome"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={userData.name}
+            onChange={(e) =>
+              setUserData((prevData) => ({ ...prevData, name: e.target.value }))
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Biografia"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={userData.bio}
+            onChange={(e) =>
+              setUserData((prevData) => ({ ...prevData, bio: e.target.value }))
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Localização"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={userData.location}
+            onChange={(e) =>
+              setUserData((prevData) => ({
+                ...prevData,
+                location: e.target.value,
+              }))
+            }
+          />
+          <input
+            type="file"
+            onChange={(e) => setProfileImage(e.target.files[0])}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} color="primary">
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

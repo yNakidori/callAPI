@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
       await signOut(auth);
       setCurrentUser(null);
     } catch (error) {
-      console.log("Erroe ignin out:", error);
+      console.log("Error signin out:", error);
     }
   };
 

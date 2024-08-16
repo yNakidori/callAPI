@@ -93,71 +93,101 @@ function ProfilePage() {
     <div>
       <AppBar />
       <div className="main">
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            padding: "2rem",
-            backgroundColor: "#FFE9D0",
-            minHeight: "100vh",
-          }}
-        >
-          <Avatar
-            alt="User Photo"
-            src={profileImageUrl || "https://via.placeholder.com/150"}
-            sx={{ width: 150, height: 150, marginBottom: "1rem" }}
-          />
-          <Typography variant="h4" component="h1" gutterBottom>
-            {userData.name || "Nome do usuario"}
-          </Typography>
-          <Typography variant="body1" align="center" paragraph>
-            {userData.bio ||
-              "Esta é uma breve biografia do usuário. Pode incluir informações como profissão, hobbies ou qualquer outra coisa que queira compartilhar."}
-          </Typography>
-          <Grid
-            container
-            spacing={2}
-            justifyContent="center"
-            sx={{ marginBottom: "1rem" }}
-          >
-            <Grid item>
-              <IconButton color="primary" href="#" target="_blank">
-                <LinkedIn />
-              </IconButton>
-            </Grid>
-            <Grid item>
-              <IconButton color="primary" href="#" target="_blank">
-                <GitHub />
-              </IconButton>
-            </Grid>
-            <Grid item>
-              <IconButton color="primary" href="#" target="_blank">
-                <Twitter />
-              </IconButton>
-            </Grid>
-          </Grid>
+        <Box>
           <Box
             sx={{
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              marginBottom: "1rem",
+              backgroundColor: "white",
+              minHeight: "100vh",
+              margin: "8vh",
+              borderRadius: "3vh",
             }}
           >
-            <LocationOn sx={{ marginRight: "0.5rem" }} />
-            <Typography variant="body2">
-              Localização: {userData.location || "Cidade, País"}
-            </Typography>
-          </Box>
-          <div>
-            <Button
-              onClick={handleEditClick}
-              variant="contained"
-              color="primary"
+            <Box
+              sx={{
+                backgroundColor: "black",
+                borderRadius: "3vh",
+                marginTop: "5vh",
+                width: "100%",
+                height: "35vh",
+              }}
             >
-              Edit profile
-            </Button>
-          </div>
+              <Avatar
+                alt="User Photo"
+                src={profileImageUrl || "https://via.placeholder.com/150"}
+                sx={{
+                  width: 150,
+                  height: 150,
+                  marginTop: "16rem",
+                  marginBottom: "1rem",
+                  marginLeft: "3rem",
+                }}
+              />
+            </Box>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{ marginTop: "2rem" }}
+              gutterBottom
+            >
+              {userData.name || "Nome do usuario"}
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ marginTop: "1rem" }}
+              align="center"
+              paragraph
+            >
+              {userData.bio ||
+                "Esta é uma breve biografia do usuário. Pode incluir informações como profissão, hobbies ou qualquer outra coisa que queira compartilhar."}
+            </Typography>
+            <Grid
+              container
+              spacing={2}
+              justifyContent="center"
+              sx={{ marginBottom: "1rem" }}
+            >
+              <Grid item>
+                <IconButton color="primary" href="#" target="_blank">
+                  <LinkedIn />
+                </IconButton>
+              </Grid>
+              <Grid item>
+                <IconButton color="primary" href="#" target="_blank">
+                  <GitHub />
+                </IconButton>
+              </Grid>
+              <Grid item>
+                <IconButton color="primary" href="#" target="_blank">
+                  <Twitter />
+                </IconButton>
+              </Grid>
+            </Grid>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "1rem",
+              }}
+            >
+              <LocationOn sx={{ marginRight: "0.5rem" }} />
+              <Typography variant="body2">
+                Localização: {userData.location || "Cidade, País"}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                marginTop: " 3rem",
+                backgroundColor: "black",
+                width: "100%",
+                height: "55vh",
+                borderRadius: "3rem",
+                opacity: "80%",
+              }}
+            ></Box>
+          </Box>
         </Box>
       </div>
 

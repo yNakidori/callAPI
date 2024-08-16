@@ -64,11 +64,17 @@ export default function SignIn() {
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
+    const passwordValidation = data.get("passwordValidation");
+
+    if (password !== passwordValidation) {
+      console.error("Passwords do not match");
+      return;
+    }
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        navigate("/homePage");
+        navigate("/completeProfile", { state: { userId: user.uid } }); // Redireciona para a página de preenchimento de perfil
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -208,7 +214,7 @@ export default function SignIn() {
                 margin="normal"
                 required
                 fullWidth
-                name="password"
+                name="passwordValidation"
                 type="password"
                 label="Confirm your password again"
                 id="passwordValidation"

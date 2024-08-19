@@ -299,7 +299,7 @@ export default function SignIn() {
                 required
                 fullWidth
                 name="sector"
-                label="Sector"
+                label="Work area"
                 value={formData.sector}
                 onChange={handleChange}
                 error={!!errors.sector}
@@ -312,21 +312,12 @@ export default function SignIn() {
                   </MenuItem>
                 ))}
               </TextField>
-              <TextField
-                margin="normal"
-                required
+              <Button
+                variant="contained"
+                component="label"
                 fullWidth
-                name="description"
-                label="Description"
-                value={formData.description}
-                onChange={handleChange}
-                error={!!errors.description}
-                helperText={errors.description}
-                multiline
-                rows={4}
-                sx={textFieldStyles}
-              />
-              <Button variant="contained" component="label" fullWidth>
+                sx={{ borderRadius: 8 }}
+              >
                 Upload Profile Image
                 <input
                   type="file"
@@ -343,6 +334,7 @@ export default function SignIn() {
                 sx={{
                   mt: 3,
                   mb: 2,
+                  borderRadius: 8,
                   backgroundColor: "#46448C",
                   "&:hover": {
                     backgroundColor: "#2E2C7D",

@@ -4,8 +4,6 @@ import {
   Avatar,
   Typography,
   Button,
-  Grid,
-  IconButton,
   TextField,
   Dialog,
   DialogActions,
@@ -13,7 +11,7 @@ import {
   DialogTitle,
   Paper,
 } from "@mui/material";
-import { LocationOn, LinkedIn, GitHub, Twitter } from "@mui/icons-material";
+import { LocationOn } from "@mui/icons-material";
 import { auth, db, storage } from "../services/firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -34,8 +32,9 @@ function ProfilePage() {
   const [userData, setUserData] = useState({});
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [bannerImage, setBannerImage] = useState(null);
+  const [bannerImageUrl, setBannerImageUrl] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -44,6 +43,8 @@ function ProfilePage() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setUserData(docSnap.data());
+          setProfileImageUrl(docSnap.data().profileImageUrl || "");
+          setBannerImageUrl(docSnap.data().bannerImageUrl || "");
         } else {
           console.log("No such document!");
         }
@@ -59,21 +60,65 @@ function ProfilePage() {
       if (profileImage) {
         const storageRef = ref(storage, `profiles/${auth.currentUser.uid}`);
         const uploadTask = uploadBytesResumable(storageRef, profileImage);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {},
+          (error) => {
+            console.log(error);
+          },
+          async () => {
+            imageUrl = await getDownloadURL(storageRef);
+          }
+        );
+
         await uploadTask;
-        imageUrl = await getDownloadURL(storageRef);
       }
-      await saveUserProfile(imageUrl);
+
+      let bannerUrl = bannerImageUrl;
+      if (bannerImage) {
+        const bannerRef = ref(storage, `banners/${auth.currentUser.uid}`);
+        const bannerUploadTask = uploadBytesResumable(bannerRef, bannerImage);
+
+        bannerUploadTask.on(
+          "state_changed",
+          (snapshot) => {},
+          (error) => {
+            console.log(error);
+          },
+          async () => {
+            bannerUrl = await getDownloadURL(bannerRef);
+          }
+        );
+
+        await bannerUploadTask;
+      }
+
+      await saveUserProfile(imageUrl, bannerUrl);
     } catch (error) {
       console.log("Error updating profile: ", error);
     }
   };
 
-  const saveUserProfile = async (imageUrl) => {
+  const saveUserProfile = async (imageUrl, bannerUrl) => {
     try {
-      await setDoc(doc(db, "users", auth.currentUser.uid), {
+      // Remover campos com valores undefined
+      const dataToSave = {
         ...userData,
-        profileImageUrl: imageUrl || userData.profileImageUrl,
+        profileImageUrl:
+          imageUrl !== undefined ? imageUrl : userData.profileImageUrl,
+        bannerImageUrl:
+          bannerUrl !== undefined ? bannerUrl : userData.bannerImageUrl,
+      };
+
+      // Filtrar os campos que são undefined
+      Object.keys(dataToSave).forEach((key) => {
+        if (dataToSave[key] === undefined) {
+          delete dataToSave[key];
+        }
       });
+
+      await setDoc(doc(db, "users", auth.currentUser.uid), dataToSave);
       alert("Profile updated successfully!");
       setIsEditing(false);
     } catch (error) {
@@ -112,27 +157,44 @@ function ProfilePage() {
                 marginTop: "5vh",
                 width: "100%",
                 height: "35vh",
+                backgroundImage: `url(${
+                  bannerImageUrl || "https://via.placeholder.com/500x150"
+                })`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                position: "relative",
               }}
             >
-              <Avatar
-                alt="User Photo"
-                src={profileImageUrl || "https://via.placeholder.com/150"}
-                sx={{
-                  width: 150,
-                  height: 150,
-                  marginTop: "16rem",
-                  marginBottom: "1rem",
-                  marginLeft: "3rem",
+              <input
+                type="file"
+                onChange={(e) => setBannerImage(e.target.files[0])}
+                style={{
+                  opacity: 0,
+                  width: "100%",
+                  height: "100%",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  cursor: "pointer",
                 }}
               />
             </Box>
+            <Avatar
+              src={profileImageUrl || "https://via.placeholder.com/150"}
+              sx={{
+                width: 150,
+                height: 150,
+                marginTop: "-75px",
+                border: "5px solid white",
+              }}
+            />
             <Typography
               variant="h4"
               component="h1"
               sx={{ marginTop: "2rem" }}
               gutterBottom
             >
-              {userData.name || "Nome do usuario"}
+              {userData.name || "Nome do usuário"}
             </Typography>
             <Typography
               variant="body1"
@@ -143,28 +205,7 @@ function ProfilePage() {
               {userData.bio ||
                 "Esta é uma breve biografia do usuário. Pode incluir informações como profissão, hobbies ou qualquer outra coisa que queira compartilhar."}
             </Typography>
-            <Grid
-              container
-              spacing={2}
-              justifyContent="center"
-              sx={{ marginBottom: "1rem" }}
-            >
-              <Grid item>
-                <IconButton color="primary" href="#" target="_blank">
-                  <LinkedIn />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton color="primary" href="#" target="_blank">
-                  <GitHub />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton color="primary" href="#" target="_blank">
-                  <Twitter />
-                </IconButton>
-              </Grid>
-            </Grid>
+
             <Box
               sx={{
                 display: "flex",
@@ -173,13 +214,32 @@ function ProfilePage() {
               }}
             >
               <LocationOn sx={{ marginRight: "0.5rem" }} />
-              <Typography variant="body2">
-                Localização: {userData.location || "Cidade, País"}
-              </Typography>
+              <Box>
+                <Typography variant="body2" sx={{ alignItems: "flex-start" }}>
+                  {userData.estado || "Estado: "}
+                </Typography>
+                <Typography variant="body2" sx={{ alignItems: "flex-end" }}>
+                  {userData.cidade || "Cidade: "}
+                </Typography>
+              </Box>
             </Box>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleEditClick}
+              sx={{
+                borderRadius: 8,
+                backgroundColor: "#46448C",
+                "&:hover": {
+                  backgroundColor: "#2E2C7D",
+                },
+              }}
+            >
+              Editar Perfil
+            </Button>
             <Box
               sx={{
-                marginTop: " 3rem",
+                marginTop: "3rem",
                 backgroundColor: "black",
                 width: "100%",
                 height: "55vh",
@@ -200,7 +260,7 @@ function ProfilePage() {
             type="text"
             fullWidth
             variant="standard"
-            value={userData.name}
+            value={userData.name || ""}
             onChange={(e) =>
               setUserData((prevData) => ({ ...prevData, name: e.target.value }))
             }
@@ -211,32 +271,60 @@ function ProfilePage() {
             type="text"
             fullWidth
             variant="standard"
-            value={userData.bio}
+            value={userData.bio || ""}
             onChange={(e) =>
               setUserData((prevData) => ({ ...prevData, bio: e.target.value }))
             }
           />
+          <Box>
+            <TextField
+              margin="dense"
+              label="Estado"
+              type="text"
+              variant="standard"
+              value={userData.estado || ""}
+              sx={{ alignItems: "flex-start" }}
+              onChange={(e) =>
+                setUserData((prevData) => ({
+                  ...prevData,
+                  estado: e.target.value,
+                }))
+              }
+            />
+            <TextField
+              margin="dense"
+              label="Cidade"
+              type="text"
+              variant="standard"
+              value={userData.cidade || ""}
+              sx={{ alignItems: "flex-end" }}
+              onChange={(e) =>
+                setUserData((prevData) => ({
+                  ...prevData,
+                  cidade: e.target.value,
+                }))
+              }
+            />
+          </Box>
           <TextField
             margin="dense"
-            label="Localização"
-            type="text"
+            label="Foto de Perfil"
+            type="file"
             fullWidth
             variant="standard"
-            value={userData.location}
-            onChange={(e) =>
-              setUserData((prevData) => ({
-                ...prevData,
-                location: e.target.value,
-              }))
-            }
-          />
-          <input
-            type="file"
             onChange={(e) => setProfileImage(e.target.files[0])}
+          />
+          <TextField
+            margin="dense"
+            label="Banner"
+            type="file"
+            fullWidth
+            variant="standard"
+            onChange={(e) => setBannerImage(e.target.files[0])}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">
+          <Button onClick={handleClose} color="primary">
             Cancelar
           </Button>
           <Button onClick={handleSubmit} color="primary">
